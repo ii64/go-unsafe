@@ -3,11 +3,14 @@ package unsafelib
 import (
 	"fmt"
 	"reflect"
+	"runtime/debug"
 	"testing"
 	"unsafe"
-
-	"github.com/ii64/go-unsafe/unsafeheader"
 )
+
+func init() {
+	debug.SetPanicOnFault(true)
+}
 
 func TestInterfaceNil(t *testing.T) {
 	println(reflect.TypeOf((any)(nil)))
@@ -58,7 +61,7 @@ func TestInterfaceCastSlice(t *testing.T) {
 
 func TestInterfaceCastMapString(t *testing.T) {
 	type tsrc = map[string]string
-	type tdst = map[string]unsafeheader.String
+	type tdst = map[string]String
 	println(unsafe.Sizeof(tsrc{}), unsafe.Sizeof(tdst{}))
 
 	var src any = tsrc{
@@ -84,7 +87,7 @@ func TestInterfaceCastMapString(t *testing.T) {
 
 func TestInterfaceCastMapIface(t *testing.T) {
 	type tsrc = map[string]any
-	type tdst = map[string]ifacetyp
+	type tdst = map[string]Interface
 	println(unsafe.Sizeof(tsrc{}), unsafe.Sizeof(tdst{}))
 
 	var src any = tsrc{
@@ -96,7 +99,7 @@ func TestInterfaceCastMapIface(t *testing.T) {
 
 	for key, srcVal := range src.(tsrc) {
 		dstVal := dst[key]
-		dstCast := (*reflect.SliceHeader)(unsafe.Pointer(dstVal.word))
+		dstCast := (*reflect.SliceHeader)(unsafe.Pointer(dstVal.Word))
 
 		switch srcCast := srcVal.(type) {
 		case []int64:
@@ -117,4 +120,70 @@ func TestInterfaceCastMapIface(t *testing.T) {
 
 	fmt.Println(src)
 	fmt.Println(dst)
+}
+
+//
+
+type testStruct1 struct {
+	K int
+}
+
+func (m *testStruct1) X() int {
+	m.K++
+	return 0xfa
+}
+func (m *testStruct1) Y() int { return 0xfb }
+
+func TestInterfaceCastImplementer(t *testing.T) {
+
+	type testInterfaceImplementer interface {
+		X() int
+	}
+
+	type testInterfaceImplementer2 interface {
+		testInterfaceImplementer
+		Y() int
+	}
+
+	orig := &testStruct1{123}
+	var pl testInterfaceImplementer2
+
+	var pl2 testInterfaceImplementer2 = &testStruct1{}
+	var pl1 testInterfaceImplementer = &testStruct1{}
+
+	// typ := reflect.TypeOf(pl1) // once `pl1` goes to reflect.TypeOf, it will be referenced as empty interface.
+	mt := CastInterfacePtr(&pl, orig, (*Interface)(unsafe.Pointer(&pl1)).Type) // do this instead.
+
+	// fmt.Printf("el %+#v\n", reflect.TypeOf(&pl).Elem().Elem().Kind().String())
+
+	// --
+
+	// var im any = orig
+	// efo := (*ifacetyp)(unsafe.Pointer(&im))
+	// fmt.Printf("* %+#v %p\n", (*rtype)(efo.typ), efo.typ)
+
+	efc := (*Interface)(unsafe.Pointer(&pl))
+	fmt.Printf("pl %+#v %p\n", (*rtype)(efc.Type), efc.Type)
+
+	efc1 := (*Interface)(unsafe.Pointer(&pl1))
+	fmt.Printf("pl1 %+#v %p\n", (*rtype)(efc1.Type), efc1.Type)
+
+	// efc2 := (*ifacetyp)(unsafe.Pointer(&pl2))
+	// fmt.Printf("* %+#v %p\n", (*rtype)(efc2.typ), efc2.typ)
+
+	// --
+
+	println(pl, pl2, mt)
+
+	fmt.Printf("pl %+#v %T\n", pl, pl)
+	fmt.Printf("mt %+#v %T\n", mt, mt)
+
+	// -- check iface method lookup
+
+	pl.X()
+	fmt.Printf("pl post-call %+#v %+#v\n", pl, orig)
+
+	// DON'T CALL Y() method !!
+	// pl.Y() // SEGV, testInterfaceImplementer (pl1) casted to testInterfaceImplementer2 (pl)
+
 }

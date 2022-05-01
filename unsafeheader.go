@@ -7,7 +7,7 @@
 //
 // This package allows packages that cannot import "reflect" to use types that
 // are tested to be equivalent to reflect.SliceHeader and reflect.StringHeader.
-package unsafeheader
+package unsafelib
 
 import (
 	"unsafe"

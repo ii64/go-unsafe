@@ -8,11 +8,9 @@ import (
 	"strings"
 	"testing"
 	"unsafe"
-
-	"github.com/ii64/go-unsafe/unsafeheader"
 )
 
-type mtypeTest struct {
+type testMtype struct {
 	//	state         protoimpl.MessageState
 	//	sizeCache     protoimpl.SizeCache
 	//	unknownFields protoimpl.UnknownFields
@@ -22,15 +20,15 @@ type mtypeTest struct {
 	Field2 string `protobuf:"bytes,2,opt,name=field2,proto3" json:"field2,omitempty"`
 }
 
-type mtypTest string
+type testMtyp string
 
 func TestStringCompare(t *testing.T) {
 	val := "test"
-	val2 := mtypTest(val)
-	valHdr := (*unsafeheader.String)(unsafe.Pointer(&val))
-	valHdr2 := (*unsafeheader.String)(unsafe.Pointer(&val2))
-	val3 := mtypTest(val)
-	valHdr3 := (*unsafeheader.String)(unsafe.Pointer(&val3))
+	val2 := testMtyp(val)
+	valHdr := (*String)(unsafe.Pointer(&val))
+	valHdr2 := (*String)(unsafe.Pointer(&val2))
+	val3 := testMtyp(val)
+	valHdr3 := (*String)(unsafe.Pointer(&val3))
 	println(valHdr, valHdr2, valHdr3)
 	fmt.Println(valHdr, valHdr2, valHdr3)
 }
@@ -91,7 +89,7 @@ func try(dst any, src any) {
 }
 
 func TestRefIfaceTyp(t *testing.T) {
-	var m any = mtypeTest{}
+	var m any = testMtype{}
 
 	typ := reflect.TypeOf(m)
 	st := getStructType(typ)
@@ -102,7 +100,7 @@ func TestRefIfaceTyp(t *testing.T) {
 
 func TestSwitchStructFieldMeta(t *testing.T) {
 
-	try(mtypeTest{}, struct {
+	try(testMtype{}, struct {
 		field0 string `asd:"" mt:"field0,omitempty"`
 		Field1 string `asd:"" protobuf:"bytes,1,opt,name=field1,proto3" json:"field1,omitempty"`
 		Field2 string `asd:"" protobuf:"bytes,2,opt,name=field2,proto3" json:"field2,omitempty"`
@@ -117,7 +115,7 @@ func TestGetStructField(t *testing.T) {
 	rtyp := getStructType(typ)
 	fmt.Printf("%+#v %p\n", rtyp, rtyp)
 
-	typ = reflect.TypeOf(mtypeTest{})
+	typ = reflect.TypeOf(testMtype{})
 	rtyp = getStructType(typ)
 	fmt.Printf("%+#v %p\n", rtyp, rtyp)
 
@@ -131,7 +129,7 @@ func TestGetStructField(t *testing.T) {
 
 func TestIfaceTypReplace(t *testing.T) {
 
-	var m any = mtypeTest{
+	var m any = testMtype{
 		field0: "1",
 		Field1: "2",
 		Field2: "3",
@@ -176,8 +174,8 @@ func TestIfaceTypReplace(t *testing.T) {
 }
 
 func TestTypeTabStructTag(t *testing.T) {
-	mf := func(m *mtypeTest) {
-		typ := reflect.TypeOf(mtypeTest{})
+	mf := func(m *testMtype) {
+		typ := reflect.TypeOf(testMtype{})
 
 		rtp := ((*emptyInterface)(unsafe.Pointer(&typ))).word
 		rt := (*structType)(rtp)
@@ -186,7 +184,7 @@ func TestTypeTabStructTag(t *testing.T) {
 
 		for i := 0; i < typ.NumField(); i++ {
 			val := typ.Field(i).Tag
-			hdr := (*unsafeheader.String)(unsafe.Pointer(&val))
+			hdr := (*String)(unsafe.Pointer(&val))
 
 			if false {
 				writer := &memwritertest{(*byte)(hdr.Data), hdr.Len}
@@ -198,6 +196,6 @@ func TestTypeTabStructTag(t *testing.T) {
 			fmt.Println(hdr, val)
 		}
 	}
-	mf(new(mtypeTest))
-	mf(new(mtypeTest))
+	mf(new(testMtype))
+	mf(new(testMtype))
 }
