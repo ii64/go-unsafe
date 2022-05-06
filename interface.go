@@ -24,7 +24,23 @@ func rtypeToReflectType(typ *rtype) (v reflect.Type) {
 	return
 }
 
+// ChangeInterfacePtrData change ptr data, leaving type referencec untouched.
+//   dst: *(any)(nil/obj) - must NOT be nil
+//   src: (any)
+// See also: CastInterface, CastInterfacePtr
+func ChangeInterfacePtrData(dst any, src any) {
+	if dst == nil || src == nil {
+		return
+	}
+	ifaceDst := (*Interface)(unsafe.Pointer(&dst))
+	iface := (*Interface)(ifaceDst.Word)
+
+	ifaceSrc := (*Interface)(unsafe.Pointer(&src))
+	iface.Word = ifaceSrc.Word
+}
+
 // CastInterface casts interface type
+// See also: ChangeInterfacePtrData
 func CastInterface(src any, typ reflect.Type) any {
 	iface := *(*Interface)(unsafe.Pointer(&src))
 	ifaceTyp := (*Interface)(unsafe.Pointer(&typ))
@@ -33,9 +49,10 @@ func CastInterface(src any, typ reflect.Type) any {
 }
 
 // CastInterfacePtr dst is a pointer to a interface
-// dst: *(any)(nil/obj)
-// src: (any)(obj)
-// typ: (any)(*rtype)
+//   dst: *(any)(nil/obj)
+//   src: (any)(obj)
+//   typ: (any)(*rtype)
+// See also: ChangeInterfacePtrData
 func CastInterfacePtr(dst any, src any, typ any) (ret any) {
 	if dst == nil || src == nil || typ == nil {
 		return

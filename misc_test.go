@@ -52,10 +52,10 @@ func (w *memwritertest) WriteString(s string) int {
 	return len(s)
 }
 
-func getStructType(v reflect.Type) *structType {
+func getStructType(v reflect.Type) *StructType {
 	// reflect.Type
 	iface := (*emptyInterface)(unsafe.Pointer(&v))
-	return (*structType)(iface.word)
+	return (*StructType)(iface.word)
 }
 func getTyp(v reflect.Type) *rtype {
 	// reflect.Type
@@ -178,7 +178,7 @@ func TestTypeTabStructTag(t *testing.T) {
 		typ := reflect.TypeOf(testMtype{})
 
 		rtp := ((*emptyInterface)(unsafe.Pointer(&typ))).word
-		rt := (*structType)(rtp)
+		rt := (*StructType)(rtp)
 
 		fmt.Printf("%+#v %p\n", rt, rt)
 

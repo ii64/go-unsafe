@@ -187,3 +187,29 @@ func TestInterfaceCastImplementer(t *testing.T) {
 	// pl.Y() // SEGV, testInterfaceImplementer (pl1) casted to testInterfaceImplementer2 (pl)
 
 }
+
+// ---
+
+func TestInterfaceCastChangePtrData(t *testing.T) {
+	type testModelNoMethod struct {
+		X [8]byte
+	}
+	type testInterfaceImplementer interface {
+		X() int
+	}
+	m := &testStruct1{}
+	var x testInterfaceImplementer = m
+
+	x.X()
+	x.X()
+	x.X()
+
+	var targ = &testModelNoMethod{}
+	ChangeInterfacePtrData(&x, targ)
+
+	x.X()
+	x.X()
+	x.X()
+
+	fmt.Printf("%+#v\n%+#v\n", m, targ)
+}
