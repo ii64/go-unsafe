@@ -30,7 +30,7 @@ type Slice struct {
 // change in a later release.
 //
 // Unlike reflect.StringHeader, its Data field is sufficient to guarantee the
-// data it references will not be garbage collected.
+// data it references will not be *garbage collected*.
 type String struct {
 	Data unsafe.Pointer
 	Len  int

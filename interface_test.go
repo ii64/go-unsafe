@@ -3,13 +3,12 @@ package unsafelib
 import (
 	"fmt"
 	"reflect"
-	"runtime/debug"
 	"testing"
 	"unsafe"
 )
 
 func init() {
-	debug.SetPanicOnFault(true)
+	// debug.SetPanicOnFault(true)
 }
 
 func TestInterfaceNil(t *testing.T) {
@@ -188,6 +187,34 @@ func TestInterfaceCastImplementer(t *testing.T) {
 
 }
 
+func TestInterfaceCastNoType(t *testing.T) {
+
+	type impl interface {
+		X() int
+	}
+
+	type ma struct {
+		X int
+	}
+
+	obj := &ma{0xfa}
+	var x impl
+
+	// invalid rtype
+	_obj := (any)(obj)
+	_iface := (*Interface)(unsafe.Pointer(&_obj))
+
+	fmt.Printf("%+#v %+#v\n", _iface, _iface.Type)
+
+	cast := (*Interface)(unsafe.Pointer(&x))
+	typ := *_iface.Type
+	typ.ptrdata = uintptr(unsafe.Pointer(_iface.Type))
+	// cast.Type = &typ // need itab
+	cast.Word = unsafe.Pointer(obj)
+
+	// x.X()
+}
+
 // ---
 
 func TestInterfaceCastChangePtrData(t *testing.T) {
@@ -212,4 +239,19 @@ func TestInterfaceCastChangePtrData(t *testing.T) {
 	x.X()
 
 	fmt.Printf("%+#v\n%+#v\n", m, targ)
+}
+
+// ---
+
+func TestInterfaceCastMethodMod(t *testing.T) {
+	type testInterfaceImplementer interface {
+		X() int
+	}
+	var x testInterfaceImplementer = &testStruct1{}
+	val := reflect.ValueOf(x)
+
+	for i := 0; i < val.NumMethod(); i++ {
+		m := val.Method(i)
+		fmt.Printf("%+#v %+#v\n", m, m.Bytes())
+	}
 }

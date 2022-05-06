@@ -116,9 +116,9 @@ func TestGenericCastSlice(t *testing.T) {
 }
 
 func TestGenericInvalidPtr(t *testing.T) {
-	v := ReinterpretPtr[*int](0xff) // don't dereference !
+	v := ReinterpretPtr[*int](0x600000) // don't dereference !
 	_ = v
-	// println(v)
+	// println(*v)
 }
 
 // ----
