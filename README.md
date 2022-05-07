@@ -14,6 +14,9 @@ interface method implementation (dict.type|interface):
 - referencing primitive type on `(*rtype).ptrdata`.
 
 
+runtime inspect type modification:
+- example
+
 generic pointer casting/reinterpretation:
 - example:
     ```go
