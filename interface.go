@@ -24,6 +24,11 @@ func rtypeToReflectType(typ *rtype) (v reflect.Type) {
 	return
 }
 
+func reflectTypeToRtype(typ reflect.Type) *rtype {
+	iface := (*Interface)(unsafe.Pointer(&typ))
+	return (*rtype)(iface.Word)
+}
+
 // ChangeInterfacePtrData change ptr data, leaving type referencec untouched.
 //   dst: *(any)(nil/obj) - must NOT be nil
 //   src: (any)

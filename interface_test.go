@@ -124,7 +124,7 @@ func TestInterfaceCastMapIface(t *testing.T) {
 //
 
 type testStruct1 struct {
-	K int
+	K int `json:"k" description:"tbd"`
 }
 
 func (m *testStruct1) X() int {
@@ -251,7 +251,7 @@ func TestInterfaceCastMethodMod(t *testing.T) {
 	val := reflect.ValueOf(x)
 
 	for i := 0; i < val.NumMethod(); i++ {
-		m := val.Method(i)
-		fmt.Printf("%+#v %+#v\n", m, m.Bytes())
+		// m := val.Method(i)
+		// fmt.Printf("%+#v %+#v\n", m, m.Bytes())
 	}
 }
