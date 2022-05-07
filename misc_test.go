@@ -70,7 +70,7 @@ func try(dst any, src any) {
 		return
 	}
 	rtDst, rtSrc := getStructType(typDst), getStructType(typSrc)
-	var m = make([]structField, len(rtDst.fields))
+	var m = make([]StructField, len(rtDst.fields))
 	for i, f := range rtSrc.fields {
 		m[i] = f
 	}
