@@ -115,10 +115,20 @@ func TestGenericCastSlice(t *testing.T) {
 	})
 }
 
-func TestGenericInvalidPtr(t *testing.T) {
+func TestGenericCastInvalidPtr(t *testing.T) {
 	v := ReinterpretPtr[*int](0x600000) // don't dereference !
 	_ = v
 	// println(*v)
+}
+
+func TestGenericCastString(t *testing.T) {
+	m := "hello world"
+	v := ReinterpretPtr[String](&m)
+	_ = v
+
+	p := (*String)(unsafe.Pointer(&m))
+	println(v, p)
+	fmt.Printf("%+#v\n", v)
 }
 
 // ----
@@ -158,13 +168,13 @@ func genericFun[T any](v T) {
 	cx := rtypeToReflectType((*rtype)(args[2]))
 	di := rtypeToReflectType((*rtype)(args[3]))
 
-	ptyp := rtypeToReflectType((*rtype)(unsafe.Pointer(_ax.ptrdata)))
+	// ptyp := rtypeToReflectType((*rtype)(unsafe.Pointer(_ax.ptrdata)))
 
-	fmt.Printf("%+#v %+#v %+#v %+#v\n",
-		ax.Kind().String(),
-		cx.Kind().String(),
-		di.Kind().String(),
-		ptyp.Kind().String())
+	// fmt.Printf("%+#v %+#v %+#v %+#v\n",
+	// 	ax.Kind().String(),
+	// 	cx.Kind().String(),
+	// 	di.Kind().String(),
+	// 	ptyp.Kind().String())
 
 	fmt.Printf("%+#v\n", ax)                      // AX
 	fmt.Printf("%+#v\n", (*testStruct1)(args[1])) // BX
