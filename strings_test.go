@@ -2,6 +2,7 @@ package unsafelib
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 	"unsafe"
 )
@@ -16,4 +17,10 @@ func TestString2ByteSlice(t *testing.T) {
 	dsth := (*String)(unsafe.Pointer(&dst))
 
 	fmt.Printf("%+#v\n%+#v\n", srch, dsth)
+
+	t.Run("cmp", func(t *testing.T) {
+		if strings.Compare(src, dst) != 0 {
+			t.Fail()
+		}
+	})
 }
