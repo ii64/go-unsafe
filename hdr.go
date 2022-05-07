@@ -34,6 +34,13 @@ type rtype struct {
 
 //
 
+var (
+	RTYPE_SIZE      = unsafe.Sizeof(rtype{})
+	STRUCTTYPE_SIZE = unsafe.Sizeof(StructType{})
+)
+
+//
+
 // emptyInterface is the header for an interface{} value.
 type emptyInterface struct {
 	typ  *rtype
@@ -43,7 +50,7 @@ type emptyInterface struct {
 //
 
 // Struct field
-type structField struct {
+type StructField struct {
 	name        name    // name is always non-empty
 	typ         *rtype  // type of field
 	offsetEmbed uintptr // byte offset of field<<1 | isEmbedded
@@ -53,7 +60,7 @@ type structField struct {
 type StructType struct {
 	rtype
 	pkgPath name
-	fields  []structField // sorted by offset
+	fields  []StructField // sorted by offset
 }
 
 // name is an encoded type name with optional extra data.
@@ -139,9 +146,42 @@ type Value struct {
 
 type flag uintptr
 
-//go:linkname fnv1 reflect.fnv1
+//go:linkname reflect_fnv1 reflect.fnv1
 //go:noescape
-func fnv1(x uint32, list ...byte) uint32
+func reflect_fnv1(x uint32, list ...byte) uint32
 
-//go:linkname verifyNotInHeapPtr reflect.verifyNotInHeapPtr
-func verifyNotInHeapPtr(p uintptr) bool
+//go:linkname reflect_verifyNotInHeapPtr reflect.verifyNotInHeapPtr
+func reflect_verifyNotInHeapPtr(p uintptr) bool
+
+func reflect_verifyInHeapPtr(p uintptr) bool {
+	return !reflect_verifyNotInHeapPtr(p)
+}
+
+//go:linkname reflect_escapes reflect.escapes
+func reflect_escapes(x any)
+
+//go:linkname reflect_resolveTypeOff reflect.resolveTypeOff
+func reflect_resolveTypeOff(rtype unsafe.Pointer, off int32) unsafe.Pointer
+
+//go:linkname reflect_newName reflect.newName
+func reflect_newName(n, tag string, exported bool) name
+
+//go:linkname reflect_name_name reflect.name.name
+func reflect_name_name(p name) (s string)
+
+//go:linkname reflect_name_tag reflect.name.tag
+func reflect_name_tag(p name) (s string)
+
+//go:linkname reflect_name_pkgPath reflect.name.pkgPath
+func reflect_name_pkgPath(p name) (s string)
+
+//go:linkname reflect_name_isExported reflect.name.isExported
+func reflect_name_isExported(p name) bool
+
+//go:linkname reflect_name_hasTag reflect.name.hasTag
+func reflect_name_hasTag(p name) bool
+
+//go:linkname reflect_writeVarint reflect.writeVarint
+//go:linkname reflect_name_readVarint reflect.name.readVarint
+func reflect_name_readVarint(p name, off int) (int, int)
+func reflect_writeVarint(buf []byte, n int) int
