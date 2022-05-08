@@ -15,3 +15,12 @@ func String2ByteSlice(s string) []byte {
 	}
 	return *(*[]byte)(unsafe.Pointer(&v))
 }
+
+// ByteSlice2String make string from byte slice data pointer.
+func ByteSlice2String(s []byte) (ret string) {
+	src := ReinterpretPtr[reflect.SliceHeader](&s)
+	dst := ReinterpretPtr[reflect.StringHeader](&ret)
+	dst.Data = src.Data
+	dst.Len = src.Len
+	return
+}

@@ -1,10 +1,10 @@
 package unsafelib
 
 import (
+	"bytes"
 	"fmt"
 	"strings"
 	"testing"
-	"unsafe"
 )
 
 func TestString2ByteSlice(t *testing.T) {
@@ -13,13 +13,30 @@ func TestString2ByteSlice(t *testing.T) {
 
 	dst := string(bs) // on the heap.
 
-	srch := (*String)(unsafe.Pointer(&src))
-	dsth := (*String)(unsafe.Pointer(&dst))
+	srch := ReinterpretPtr[String](&src)
+	dsth := ReinterpretPtr[String](&dst)
 
 	fmt.Printf("%+#v\n%+#v\n", srch, dsth)
 
 	t.Run("cmp", func(t *testing.T) {
 		if strings.Compare(src, dst) != 0 {
+			t.Fail()
+		}
+	})
+}
+
+func TestByteSlice2String(t *testing.T) {
+	src := []byte("hello world\n")
+	bs := ByteSlice2String(src)
+	dst := []byte(bs)
+
+	srch := *ReinterpretPtr[[]byte](&src)
+	dsth := *ReinterpretPtr[[]byte](&dst)
+
+	fmt.Printf("%+#v\n%+#v\n", srch, dsth)
+
+	t.Run("cmp", func(t *testing.T) {
+		if bytes.Compare(srch, dsth) != 0 {
 			t.Fail()
 		}
 	})
