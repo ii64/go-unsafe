@@ -166,22 +166,22 @@ func reflect_resolveTypeOff(rtype unsafe.Pointer, off int32) unsafe.Pointer
 //go:linkname reflect_newName reflect.newName
 func reflect_newName(n, tag string, exported bool) name
 
-//go:linkname reflect_name_name reflect.name.name
-func reflect_name_name(p name) (s string)
+//go:linkname name.name reflect.name.name
+func (p name) name() (s string)
 
-//go:linkname reflect_name_tag reflect.name.tag
-func reflect_name_tag(p name) (s string)
+//go:linkname name.tag reflect.name.tag
+func (p name) tag() (s string)
 
-//go:linkname reflect_name_pkgPath reflect.name.pkgPath
-func reflect_name_pkgPath(p name) (s string)
+//go:linkname name.pkgPath reflect.name.pkgPath
+func (p name) pkgPath() (s string)
 
-//go:linkname reflect_name_isExported reflect.name.isExported
-func reflect_name_isExported(p name) bool
+//go:linkname name.isExported reflect.name.isExported
+func (p name) isExported() bool
 
-//go:linkname reflect_name_hasTag reflect.name.hasTag
-func reflect_name_hasTag(p name) bool
+//go:linkname name.hasTag reflect.name.hasTag
+func (p name) hasTag() bool
 
+//go:linkname name.readVarint reflect.name.readVarint
 //go:linkname reflect_writeVarint reflect.writeVarint
-//go:linkname reflect_name_readVarint reflect.name.readVarint
-func reflect_name_readVarint(p name, off int) (int, int)
+func (p name) readVarint(off int) (int, int)
 func reflect_writeVarint(buf []byte, n int) int

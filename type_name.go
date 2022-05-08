@@ -10,10 +10,10 @@ type TypeName struct {
 }
 
 func (t *TypeName) fromName(n name) *TypeName {
-	t.PkgPath = reflect_name_pkgPath(n)
-	t.Name = reflect_name_name(n)
-	t.Tag = reflect.StructTag(reflect_name_tag(n))
-	t.Exported = reflect_name_isExported(n)
+	t.Exported = n.isExported()
+	t.Name = n.name()
+	t.Tag = reflect.StructTag(n.tag())
+	t.PkgPath = n.pkgPath()
 	return t
 }
 
@@ -25,7 +25,7 @@ func (t TypeName) HasPkgPath() bool {
 }
 
 func (t TypeName) Equal(v TypeName) bool {
-	return t.Name == v.Name && t.Tag == v.Tag && t.Exported == v.Exported
+	return t.PkgPath == v.PkgPath && t.Name == v.Name && t.Tag == v.Tag && t.Exported == v.Exported
 }
 
 func (t TypeName) toName() name {
