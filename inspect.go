@@ -15,9 +15,10 @@ var (
 type InspChangeFunc func(insp *Inspection) (doNext bool)
 
 type Inspection struct {
-	typ      *rtype
-	inHeap   bool
-	writable bool
+	typ       *rtype
+	inHeap    bool
+	writable  bool
+	writeMode bool
 }
 
 // Inspect type
@@ -44,10 +45,17 @@ func (i *Inspection) Type() reflect.Type {
 
 // Change perform action.
 func (i *Inspection) Change(fs ...InspChangeFunc) {
+	defer func() {
+		if !i.writable {
+			i.writeMode = false
+		}
+	}()
+	i.writeMode = true
 	if !i.writable {
-		// make it (page) temporary writable during action execution.
-		defer mem_mkro(i.getPtr(), 1)
-		mem_mkrw(i.getPtr(), 1)
+		// make page temporary writable during action execution.
+		prf := new_mem_profile(i.getPtr(), 1, PROT_FLAG_RO, PROT_FLAG_RW)
+		defer prf.toggle()
+		prf.toggle()
 	}
 	for _, f := range fs {
 		if f != nil && !f(i) {
@@ -60,7 +68,7 @@ func (i *Inspection) Struct() *StructType {
 	return ReinterpretPtr[StructType](i.typ)
 }
 
-func (i *Inspection) Fields() []StructField {
+func (i *Inspection) Fields() StructFields {
 	fields := &i.Struct().fields
 	if fields == nil {
 		return nil
@@ -77,8 +85,10 @@ func (i *Inspection) Fields() []StructField {
 			hFieldSh[i] = (*fields)[i]
 		}
 		fields = &hFieldSh
-		// write slice header back
-		*fieldsSh = *ReinterpretPtr[reflect.SliceHeader](fields)
+		if i.writeMode {
+			// write slice header back
+			*fieldsSh = *ReinterpretPtr[reflect.SliceHeader](fields)
+		}
 	}
 	return *fields
 }
