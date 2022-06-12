@@ -4,8 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"reflect"
+	"runtime"
+	"runtime/debug"
 	"strings"
 	"testing"
+	_ "unsafe"
 )
 
 func TestInspectTransformStruct(t *testing.T) {
@@ -63,4 +66,6 @@ func TestInspectTransformStruct(t *testing.T) {
 		fmt.Printf("%s\n", bb)
 	})
 
+	runtime.GC()
+	debug.FreeOSMemory()
 }

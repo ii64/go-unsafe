@@ -60,7 +60,7 @@ func TestInterfaceCastSlice(t *testing.T) {
 
 func TestInterfaceCastMapString(t *testing.T) {
 	type tsrc = map[string]string
-	type tdst = map[string]String
+	type tdst = map[string]reflect.StringHeader
 	println(unsafe.Sizeof(tsrc{}), unsafe.Sizeof(tdst{}))
 
 	var src any = tsrc{

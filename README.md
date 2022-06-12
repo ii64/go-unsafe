@@ -4,7 +4,7 @@ Runtime interface type cast (and modification?)
 
 since compiled types are live on binary .rodata, it is not writable*, we need to rebuild the type on runtime, calculate the hashcode (fnv1), assign methods etc etc.
 
-interface represents (aligned 8*2):
+interface represents:
 - rtype ptr, where used as type reference.
 - word/ptr data, where used as reference to data.
 

@@ -25,13 +25,17 @@ func TestInspect(t *testing.T) {
 	}
 
 	for _, ts := range ts {
+		if ts.Kind() == reflect.Struct {
+			Inspect(ts).Fields()
+			Inspect(ts).Fields()
+		}
 		Inspect(ts).Change(
 			func(insp *Inspection) bool {
 				// println(insp, insp.writable, insp.Type().Kind().String())
 				if insp.Type().Kind() == reflect.Struct {
 					k := insp.Fields()
 					m := ReinterpretPtr[reflect.SliceHeader](&k)
-					fmt.Printf("%+#v %+#v\n", k, m)
+					fmt.Printf("  > %+#v %+#v\n", k, m)
 				}
 				return true
 			},

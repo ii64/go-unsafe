@@ -3,6 +3,7 @@ package unsafelib
 import (
 	"bytes"
 	"fmt"
+	"reflect"
 	"strings"
 	"testing"
 )
@@ -13,8 +14,8 @@ func TestString2ByteSlice(t *testing.T) {
 
 	dst := string(bs) // on the heap.
 
-	srch := ReinterpretPtr[String](&src)
-	dsth := ReinterpretPtr[String](&dst)
+	srch := ReinterpretPtr[reflect.StringHeader](&src)
+	dsth := ReinterpretPtr[reflect.StringHeader](&dst)
 
 	fmt.Printf("%+#v\n%+#v\n", srch, dsth)
 

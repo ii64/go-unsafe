@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"reflect"
 	"runtime"
+	"runtime/debug"
 	"strings"
 	"testing"
 	"unsafe"
@@ -25,10 +26,10 @@ type testMtyp string
 func TestStringCompare(t *testing.T) {
 	val := "test"
 	val2 := testMtyp(val)
-	valHdr := (*String)(unsafe.Pointer(&val))
-	valHdr2 := (*String)(unsafe.Pointer(&val2))
+	valHdr := (*reflect.StringHeader)(unsafe.Pointer(&val))
+	valHdr2 := (*reflect.StringHeader)(unsafe.Pointer(&val2))
 	val3 := testMtyp(val)
-	valHdr3 := (*String)(unsafe.Pointer(&val3))
+	valHdr3 := (*reflect.StringHeader)(unsafe.Pointer(&val3))
 	println(valHdr, valHdr2, valHdr3)
 	fmt.Println(valHdr, valHdr2, valHdr3)
 }
@@ -128,7 +129,6 @@ func TestGetStructField(t *testing.T) {
 }
 
 func TestIfaceTypReplace(t *testing.T) {
-
 	var m any = testMtype{
 		field0: "1",
 		Field1: "2",
@@ -169,8 +169,11 @@ func TestIfaceTypReplace(t *testing.T) {
 
 	for i := 0; i < 5; i++ {
 		dojson(m2)
-		runtime.GC()
+
 	}
+
+	runtime.GC()
+	debug.FreeOSMemory()
 }
 
 func TestTypeTabStructTag(t *testing.T) {
@@ -184,10 +187,10 @@ func TestTypeTabStructTag(t *testing.T) {
 
 		for i := 0; i < typ.NumField(); i++ {
 			val := typ.Field(i).Tag
-			hdr := (*String)(unsafe.Pointer(&val))
+			hdr := (*reflect.StringHeader)(unsafe.Pointer(&val))
 
 			if false {
-				writer := &memwritertest{(*byte)(hdr.Data), hdr.Len}
+				writer := &memwritertest{(*byte)(unsafe.Pointer(hdr.Data)), hdr.Len}
 				mm := strings.ReplaceAll(string(val), `json:"field1,`, `    json:"f1,`)
 				writer.WriteString(mm)
 			}

@@ -123,10 +123,10 @@ func TestGenericCastInvalidPtr(t *testing.T) {
 
 func TestGenericCastString(t *testing.T) {
 	m := "hello world"
-	v := ReinterpretPtr[String](&m)
+	v := ReinterpretPtr[reflect.StringHeader](&m)
 	_ = v
 
-	p := (*String)(unsafe.Pointer(&m))
+	p := (*reflect.StringHeader)(unsafe.Pointer(&m))
 	println(v, p)
 	fmt.Printf("%+#v\n", v)
 }
