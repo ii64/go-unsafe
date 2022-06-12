@@ -37,12 +37,10 @@ func TestMprotect(t *testing.T) {
 	fmt.Printf("newSt: %+#v\n", newStructType)
 
 	t.Run("mprotect", func(t *testing.T) {
-		defer func() {
-			// READ
-			mem_mkro(uintptr(unsafe.Pointer(structType)), 1)
-		}()
-		// READ|WRITE
-		mem_mkrw(uintptr(unsafe.Pointer(structType)), 1)
+		prf := new_mem_profile(uintptr(unsafe.Pointer(structType)),
+			1, PROT_FLAG_RO, PROT_FLAG_RW)
+		prf.toggle()
+		defer prf.toggle()
 
 		// write fields meta
 		structType.fields = newStructType.fields

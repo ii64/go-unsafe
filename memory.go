@@ -1,17 +1,26 @@
 package unsafelib
 
 import (
-	"syscall"
+	"os"
 )
 
-// mem_mkrw page read-write,
-func mem_mkrw(addr uintptr, pagec int) error {
-	addr = getpagebase(addr)
-	return mprotect(addr, pagec*int(PAGE_SIZE), syscall.PROT_READ|syscall.PROT_WRITE)
+var (
+	PAGE_SIZE = uintptr(os.Getpagesize())
+)
+
+func getpagebase(addr uintptr) uintptr {
+	return (addr / PAGE_SIZE) * PAGE_SIZE
+}
+func getpageend(addr uintptr, i int) uintptr {
+	return (addr/PAGE_SIZE + uintptr(i)) * PAGE_SIZE
 }
 
-// mem_mkro page read-only
-func mem_mkro(addr uintptr, pagec int) error {
-	addr = getpagebase(addr)
-	return mprotect(addr, pagec*int(PAGE_SIZE), syscall.PROT_READ)
+func new_mem_profile(addr uintptr, pagec int, oldFlag, newFlag int) *mem_profile {
+	return &mem_profile{
+		addr:    getpagebase(addr),
+		len:     pagec * int(PAGE_SIZE),
+		oldFlag: oldFlag,
+		newFlag: newFlag,
+		state:   false,
+	}
 }
